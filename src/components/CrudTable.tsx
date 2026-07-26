@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { notifyCrudChange } from "@/lib/crud-store";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Lock, Pencil, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { useAuthUser } from "@/hooks/use-auth-user";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -67,6 +70,7 @@ export function CrudTable({
   fields: CrudField[];
   searchable?: boolean;
 }) {
+  const { isAuthenticated } = useAuthUser();
   const [rows, setRows] = useState<Row[]>(seed);
   const [ready, setReady] = useState(false);
   const [query, setQuery] = useState("");
@@ -74,6 +78,14 @@ export function CrudTable({
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [form, setForm] = useState<Row>({});
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+
+  function requireAuth(): boolean {
+    if (!isAuthenticated) {
+      toast.error("Please sign in to modify data.");
+      return false;
+    }
+    return true;
+  }
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -108,6 +120,7 @@ export function CrudTable({
   }, [rows, query, fields]);
 
   function openAdd() {
+    if (!requireAuth()) return;
     const blank: Row = {};
     fields.forEach((f) => {
       blank[f.key] = f.type === "number" ? 0 : "";
@@ -118,12 +131,14 @@ export function CrudTable({
   }
 
   function openEdit(index: number) {
+    if (!requireAuth()) return;
     setForm({ ...rows[index] });
     setEditingIndex(index);
     setDialogOpen(true);
   }
 
   function save() {
+    if (!requireAuth()) return;
     const record: Row = { ...form };
     fields.forEach((f) => {
       if (f.type === "number") record[f.key] = Number(record[f.key] ?? 0);
@@ -137,6 +152,7 @@ export function CrudTable({
   }
 
   function confirmDelete() {
+    if (!requireAuth()) return;
     if (deleteIndex === null) return;
     setRows((prev) => prev.filter((_, i) => i !== deleteIndex));
     setDeleteIndex(null);
@@ -155,6 +171,13 @@ export function CrudTable({
               className="max-w-xs"
             />
           )}
+          {!isAuthenticated ? (
+            <Button asChild variant="outline">
+              <Link to="/auth">
+                <Lock className="mr-2 h-4 w-4" /> Sign in to edit
+              </Link>
+            </Button>
+          ) : (
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button onClick={openAdd}>
@@ -213,6 +236,7 @@ export function CrudTable({
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          )}
         </div>
       </CardHeader>
       <CardContent>
@@ -266,22 +290,28 @@ export function CrudTable({
                       );
                     })}
                     <TableCell className="text-right">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => openEdit(i)}
-                        aria-label="Edit"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setDeleteIndex(i)}
-                        aria-label="Delete"
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      {isAuthenticated ? (
+                        <>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => openEdit(i)}
+                            aria-label="Edit"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setDeleteIndex(i)}
+                            aria-label="Delete"
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Read-only</span>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

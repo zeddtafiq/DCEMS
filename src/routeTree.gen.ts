@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CommissioningRouteImport } from './routes/commissioning'
 import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as DrawingsRouteImport } from './routes/drawings'
@@ -18,11 +19,17 @@ import { Route as InspectionRouteImport } from './routes/inspection'
 import { Route as MaterialsRouteImport } from './routes/materials'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as ReportsRouteImport } from './routes/reports'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as TestingRouteImport } from './routes/testing'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommissioningRoute = CommissioningRouteImport.update({
@@ -65,6 +72,11 @@ const ReportsRoute = ReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TestingRoute = TestingRouteImport.update({
   id: '/testing',
   path: '/testing',
@@ -73,6 +85,7 @@ const TestingRoute = TestingRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/commissioning': typeof CommissioningRoute
   '/documents': typeof DocumentsRoute
   '/drawings': typeof DrawingsRoute
@@ -81,10 +94,12 @@ export interface FileRoutesByFullPath {
   '/materials': typeof MaterialsRoute
   '/projects': typeof ProjectsRoute
   '/reports': typeof ReportsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/testing': typeof TestingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/commissioning': typeof CommissioningRoute
   '/documents': typeof DocumentsRoute
   '/drawings': typeof DrawingsRoute
@@ -93,11 +108,13 @@ export interface FileRoutesByTo {
   '/materials': typeof MaterialsRoute
   '/projects': typeof ProjectsRoute
   '/reports': typeof ReportsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/testing': typeof TestingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/commissioning': typeof CommissioningRoute
   '/documents': typeof DocumentsRoute
   '/drawings': typeof DrawingsRoute
@@ -106,12 +123,14 @@ export interface FileRoutesById {
   '/materials': typeof MaterialsRoute
   '/projects': typeof ProjectsRoute
   '/reports': typeof ReportsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/testing': typeof TestingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/commissioning'
     | '/documents'
     | '/drawings'
@@ -120,10 +139,12 @@ export interface FileRouteTypes {
     | '/materials'
     | '/projects'
     | '/reports'
+    | '/reset-password'
     | '/testing'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/commissioning'
     | '/documents'
     | '/drawings'
@@ -132,10 +153,12 @@ export interface FileRouteTypes {
     | '/materials'
     | '/projects'
     | '/reports'
+    | '/reset-password'
     | '/testing'
   id:
     | '__root__'
     | '/'
+    | '/auth'
     | '/commissioning'
     | '/documents'
     | '/drawings'
@@ -144,11 +167,13 @@ export interface FileRouteTypes {
     | '/materials'
     | '/projects'
     | '/reports'
+    | '/reset-password'
     | '/testing'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   CommissioningRoute: typeof CommissioningRoute
   DocumentsRoute: typeof DocumentsRoute
   DrawingsRoute: typeof DrawingsRoute
@@ -157,6 +182,7 @@ export interface RootRouteChildren {
   MaterialsRoute: typeof MaterialsRoute
   ProjectsRoute: typeof ProjectsRoute
   ReportsRoute: typeof ReportsRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   TestingRoute: typeof TestingRoute
 }
 
@@ -167,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/commissioning': {
@@ -225,6 +258,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/testing': {
       id: '/testing'
       path: '/testing'
@@ -237,6 +277,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   CommissioningRoute: CommissioningRoute,
   DocumentsRoute: DocumentsRoute,
   DrawingsRoute: DrawingsRoute,
@@ -245,6 +286,7 @@ const rootRouteChildren: RootRouteChildren = {
   MaterialsRoute: MaterialsRoute,
   ProjectsRoute: ProjectsRoute,
   ReportsRoute: ReportsRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   TestingRoute: TestingRoute,
 }
 export const routeTree = rootRouteImport

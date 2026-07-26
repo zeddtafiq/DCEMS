@@ -1,4 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   Home,
   FolderKanban,
@@ -12,7 +13,11 @@ import {
   Folder,
   Server,
   LogOut,
+  LogIn,
 } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+
 
 import {
   Sidebar,
@@ -42,6 +47,23 @@ const items = [
 export function AppSidebar() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
+  const navigate = useNavigate();
+  const [email, setEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setEmail(data.session?.user.email ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_evt, session) => {
+      setEmail(session?.user.email ?? null);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  async function handleLogout() {
+    const { error } = await supabase.auth.signOut();
+    if (error) return toast.error(error.message);
+    toast.success("Signed out");
+    navigate({ to: "/auth" });
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -76,15 +98,30 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
+        {email && (
+          <div className="truncate px-3 py-1 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
+            {email}
+          </div>
+        )}
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Logout">
-              <LogOut />
-              <span>Logout</span>
-            </SidebarMenuButton>
+            {email ? (
+              <SidebarMenuButton onClick={handleLogout} tooltip="Logout">
+                <LogOut />
+                <span>Logout</span>
+              </SidebarMenuButton>
+            ) : (
+              <SidebarMenuButton asChild tooltip="Sign in">
+                <Link to="/auth">
+                  <LogIn />
+                  <span>Sign in</span>
+                </Link>
+              </SidebarMenuButton>
+            )}
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );
 }
+

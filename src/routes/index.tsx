@@ -11,6 +11,8 @@ import {
 import { CheckCircle2 } from "lucide-react";
 
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { AiTodoAssistant } from "@/components/AiTodoAssistant";
+import { AiChat } from "@/components/AiChat";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -166,7 +168,13 @@ function Dashboard() {
         </Card>
       </div>
 
+      <div className="mt-6 grid gap-5 lg:grid-cols-2">
+        <AiTodoAssistant />
+        <AiChat />
+      </div>
+
       <Card className="mt-6">
+
         <CardHeader>
           <CardTitle>Equipment Status</CardTitle>
         </CardHeader>
