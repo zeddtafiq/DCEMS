@@ -6,7 +6,7 @@ import { CrudTable } from "@/components/CrudTable";
 import { useCrudStore } from "@/lib/crud-store";
 import { KEYS, equipmentSeed } from "@/lib/dcems-data";
 
-export const Route = createFileRoute("/equipment")({
+export const Route = createFileRoute("/_authenticated/equipment")({
   head: () => ({ meta: [{ title: "Equipment — DCEMS" }, { name: "description", content: "Installed electrical equipment register." }] }),
   component: EquipmentPage,
 });

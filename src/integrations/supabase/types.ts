@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      drawings: {
+        Row: {
+          created_at: string
+          created_by: string
+          date: string
+          discipline: string
+          file_name: string | null
+          file_path: string | null
+          file_size: number | null
+          id: string
+          no: string
+          rev: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          date?: string
+          discipline?: string
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          no: string
+          rev?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          date?: string
+          discipline?: string
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          no?: string
+          rev?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

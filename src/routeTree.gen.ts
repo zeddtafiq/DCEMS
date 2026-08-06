@@ -9,22 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as CommissioningRouteImport } from './routes/commissioning'
-import { Route as DocumentsRouteImport } from './routes/documents'
-import { Route as DrawingsRouteImport } from './routes/drawings'
-import { Route as EquipmentRouteImport } from './routes/equipment'
-import { Route as InspectionRouteImport } from './routes/inspection'
-import { Route as MaterialsRouteImport } from './routes/materials'
-import { Route as ProjectsRouteImport } from './routes/projects'
-import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as TestingRouteImport } from './routes/testing'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedCommissioningRouteImport } from './routes/_authenticated/commissioning'
+import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
+import { Route as AuthenticatedDrawingsRouteImport } from './routes/_authenticated/drawings'
+import { Route as AuthenticatedEquipmentRouteImport } from './routes/_authenticated/equipment'
+import { Route as AuthenticatedInspectionRouteImport } from './routes/_authenticated/inspection'
+import { Route as AuthenticatedMaterialsRouteImport } from './routes/_authenticated/materials'
+import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
+import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
+import { Route as AuthenticatedTestingRouteImport } from './routes/_authenticated/testing'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -32,105 +32,113 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CommissioningRoute = CommissioningRouteImport.update({
-  id: '/commissioning',
-  path: '/commissioning',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DocumentsRoute = DocumentsRouteImport.update({
-  id: '/documents',
-  path: '/documents',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DrawingsRoute = DrawingsRouteImport.update({
-  id: '/drawings',
-  path: '/drawings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EquipmentRoute = EquipmentRouteImport.update({
-  id: '/equipment',
-  path: '/equipment',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InspectionRoute = InspectionRouteImport.update({
-  id: '/inspection',
-  path: '/inspection',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MaterialsRoute = MaterialsRouteImport.update({
-  id: '/materials',
-  path: '/materials',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProjectsRoute = ProjectsRouteImport.update({
-  id: '/projects',
-  path: '/projects',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReportsRoute = ReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TestingRoute = TestingRouteImport.update({
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCommissioningRoute =
+  AuthenticatedCommissioningRouteImport.update({
+    id: '/commissioning',
+    path: '/commissioning',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDocumentsRoute = AuthenticatedDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDrawingsRoute = AuthenticatedDrawingsRouteImport.update({
+  id: '/drawings',
+  path: '/drawings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEquipmentRoute = AuthenticatedEquipmentRouteImport.update({
+  id: '/equipment',
+  path: '/equipment',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedInspectionRoute = AuthenticatedInspectionRouteImport.update({
+  id: '/inspection',
+  path: '/inspection',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMaterialsRoute = AuthenticatedMaterialsRouteImport.update({
+  id: '/materials',
+  path: '/materials',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTestingRoute = AuthenticatedTestingRouteImport.update({
   id: '/testing',
   path: '/testing',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
-  '/commissioning': typeof CommissioningRoute
-  '/documents': typeof DocumentsRoute
-  '/drawings': typeof DrawingsRoute
-  '/equipment': typeof EquipmentRoute
-  '/inspection': typeof InspectionRoute
-  '/materials': typeof MaterialsRoute
-  '/projects': typeof ProjectsRoute
-  '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/testing': typeof TestingRoute
+  '/commissioning': typeof AuthenticatedCommissioningRoute
+  '/documents': typeof AuthenticatedDocumentsRoute
+  '/drawings': typeof AuthenticatedDrawingsRoute
+  '/equipment': typeof AuthenticatedEquipmentRoute
+  '/inspection': typeof AuthenticatedInspectionRoute
+  '/materials': typeof AuthenticatedMaterialsRoute
+  '/projects': typeof AuthenticatedProjectsRoute
+  '/reports': typeof AuthenticatedReportsRoute
+  '/testing': typeof AuthenticatedTestingRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/commissioning': typeof CommissioningRoute
-  '/documents': typeof DocumentsRoute
-  '/drawings': typeof DrawingsRoute
-  '/equipment': typeof EquipmentRoute
-  '/inspection': typeof InspectionRoute
-  '/materials': typeof MaterialsRoute
-  '/projects': typeof ProjectsRoute
-  '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/testing': typeof TestingRoute
+  '/commissioning': typeof AuthenticatedCommissioningRoute
+  '/documents': typeof AuthenticatedDocumentsRoute
+  '/drawings': typeof AuthenticatedDrawingsRoute
+  '/equipment': typeof AuthenticatedEquipmentRoute
+  '/inspection': typeof AuthenticatedInspectionRoute
+  '/materials': typeof AuthenticatedMaterialsRoute
+  '/projects': typeof AuthenticatedProjectsRoute
+  '/reports': typeof AuthenticatedReportsRoute
+  '/testing': typeof AuthenticatedTestingRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/commissioning': typeof CommissioningRoute
-  '/documents': typeof DocumentsRoute
-  '/drawings': typeof DrawingsRoute
-  '/equipment': typeof EquipmentRoute
-  '/inspection': typeof InspectionRoute
-  '/materials': typeof MaterialsRoute
-  '/projects': typeof ProjectsRoute
-  '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/testing': typeof TestingRoute
+  '/_authenticated/commissioning': typeof AuthenticatedCommissioningRoute
+  '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
+  '/_authenticated/drawings': typeof AuthenticatedDrawingsRoute
+  '/_authenticated/equipment': typeof AuthenticatedEquipmentRoute
+  '/_authenticated/inspection': typeof AuthenticatedInspectionRoute
+  '/_authenticated/materials': typeof AuthenticatedMaterialsRoute
+  '/_authenticated/projects': typeof AuthenticatedProjectsRoute
+  '/_authenticated/reports': typeof AuthenticatedReportsRoute
+  '/_authenticated/testing': typeof AuthenticatedTestingRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/reset-password'
     | '/commissioning'
     | '/documents'
     | '/drawings'
@@ -139,12 +147,11 @@ export interface FileRouteTypes {
     | '/materials'
     | '/projects'
     | '/reports'
-    | '/reset-password'
     | '/testing'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/auth'
+    | '/reset-password'
     | '/commissioning'
     | '/documents'
     | '/drawings'
@@ -153,46 +160,38 @@ export interface FileRouteTypes {
     | '/materials'
     | '/projects'
     | '/reports'
-    | '/reset-password'
     | '/testing'
+    | '/'
   id:
     | '__root__'
-    | '/'
+    | '/_authenticated'
     | '/auth'
-    | '/commissioning'
-    | '/documents'
-    | '/drawings'
-    | '/equipment'
-    | '/inspection'
-    | '/materials'
-    | '/projects'
-    | '/reports'
     | '/reset-password'
-    | '/testing'
+    | '/_authenticated/commissioning'
+    | '/_authenticated/documents'
+    | '/_authenticated/drawings'
+    | '/_authenticated/equipment'
+    | '/_authenticated/inspection'
+    | '/_authenticated/materials'
+    | '/_authenticated/projects'
+    | '/_authenticated/reports'
+    | '/_authenticated/testing'
+    | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  CommissioningRoute: typeof CommissioningRoute
-  DocumentsRoute: typeof DocumentsRoute
-  DrawingsRoute: typeof DrawingsRoute
-  EquipmentRoute: typeof EquipmentRoute
-  InspectionRoute: typeof InspectionRoute
-  MaterialsRoute: typeof MaterialsRoute
-  ProjectsRoute: typeof ProjectsRoute
-  ReportsRoute: typeof ReportsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  TestingRoute: typeof TestingRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -202,62 +201,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/commissioning': {
-      id: '/commissioning'
-      path: '/commissioning'
-      fullPath: '/commissioning'
-      preLoaderRoute: typeof CommissioningRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/documents': {
-      id: '/documents'
-      path: '/documents'
-      fullPath: '/documents'
-      preLoaderRoute: typeof DocumentsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/drawings': {
-      id: '/drawings'
-      path: '/drawings'
-      fullPath: '/drawings'
-      preLoaderRoute: typeof DrawingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/equipment': {
-      id: '/equipment'
-      path: '/equipment'
-      fullPath: '/equipment'
-      preLoaderRoute: typeof EquipmentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inspection': {
-      id: '/inspection'
-      path: '/inspection'
-      fullPath: '/inspection'
-      preLoaderRoute: typeof InspectionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/materials': {
-      id: '/materials'
-      path: '/materials'
-      fullPath: '/materials'
-      preLoaderRoute: typeof MaterialsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects': {
-      id: '/projects'
-      path: '/projects'
-      fullPath: '/projects'
-      preLoaderRoute: typeof ProjectsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reports': {
-      id: '/reports'
-      path: '/reports'
-      fullPath: '/reports'
-      preLoaderRoute: typeof ReportsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -265,29 +208,112 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/testing': {
-      id: '/testing'
+    '/_authenticated/': {
+      id: '/_authenticated/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/commissioning': {
+      id: '/_authenticated/commissioning'
+      path: '/commissioning'
+      fullPath: '/commissioning'
+      preLoaderRoute: typeof AuthenticatedCommissioningRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/documents': {
+      id: '/_authenticated/documents'
+      path: '/documents'
+      fullPath: '/documents'
+      preLoaderRoute: typeof AuthenticatedDocumentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/drawings': {
+      id: '/_authenticated/drawings'
+      path: '/drawings'
+      fullPath: '/drawings'
+      preLoaderRoute: typeof AuthenticatedDrawingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/equipment': {
+      id: '/_authenticated/equipment'
+      path: '/equipment'
+      fullPath: '/equipment'
+      preLoaderRoute: typeof AuthenticatedEquipmentRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inspection': {
+      id: '/_authenticated/inspection'
+      path: '/inspection'
+      fullPath: '/inspection'
+      preLoaderRoute: typeof AuthenticatedInspectionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/materials': {
+      id: '/_authenticated/materials'
+      path: '/materials'
+      fullPath: '/materials'
+      preLoaderRoute: typeof AuthenticatedMaterialsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/projects': {
+      id: '/_authenticated/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof AuthenticatedProjectsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reports': {
+      id: '/_authenticated/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AuthenticatedReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/testing': {
+      id: '/_authenticated/testing'
       path: '/testing'
       fullPath: '/testing'
-      preLoaderRoute: typeof TestingRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedTestingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCommissioningRoute: typeof AuthenticatedCommissioningRoute
+  AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
+  AuthenticatedDrawingsRoute: typeof AuthenticatedDrawingsRoute
+  AuthenticatedEquipmentRoute: typeof AuthenticatedEquipmentRoute
+  AuthenticatedInspectionRoute: typeof AuthenticatedInspectionRoute
+  AuthenticatedMaterialsRoute: typeof AuthenticatedMaterialsRoute
+  AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
+  AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
+  AuthenticatedTestingRoute: typeof AuthenticatedTestingRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCommissioningRoute: AuthenticatedCommissioningRoute,
+  AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
+  AuthenticatedDrawingsRoute: AuthenticatedDrawingsRoute,
+  AuthenticatedEquipmentRoute: AuthenticatedEquipmentRoute,
+  AuthenticatedInspectionRoute: AuthenticatedInspectionRoute,
+  AuthenticatedMaterialsRoute: AuthenticatedMaterialsRoute,
+  AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
+  AuthenticatedReportsRoute: AuthenticatedReportsRoute,
+  AuthenticatedTestingRoute: AuthenticatedTestingRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  CommissioningRoute: CommissioningRoute,
-  DocumentsRoute: DocumentsRoute,
-  DrawingsRoute: DrawingsRoute,
-  EquipmentRoute: EquipmentRoute,
-  InspectionRoute: InspectionRoute,
-  MaterialsRoute: MaterialsRoute,
-  ProjectsRoute: ProjectsRoute,
-  ReportsRoute: ReportsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  TestingRoute: TestingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

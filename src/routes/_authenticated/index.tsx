@@ -32,7 +32,7 @@ import {
   commissioningSeed,
 } from "@/lib/dcems-data";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "DCEMS Dashboard — Electrical Commissioning" },

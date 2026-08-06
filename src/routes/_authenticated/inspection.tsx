@@ -6,7 +6,7 @@ import { CrudTable } from "@/components/CrudTable";
 import { useCrudStore } from "@/lib/crud-store";
 import { KEYS, inspectionsSeed } from "@/lib/dcems-data";
 
-export const Route = createFileRoute("/inspection")({
+export const Route = createFileRoute("/_authenticated/inspection")({
   head: () => ({ meta: [{ title: "Inspection — DCEMS" }, { name: "description", content: "Inspection checklists and results." }] }),
   component: InspectionPage,
 });

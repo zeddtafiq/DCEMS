@@ -7,7 +7,7 @@ import { CrudTable } from "@/components/CrudTable";
 import { useCrudStore } from "@/lib/crud-store";
 import { KEYS, reportsSeed, commissioningSeed } from "@/lib/dcems-data";
 
-export const Route = createFileRoute("/reports")({
+export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({ meta: [{ title: "Reports — DCEMS" }, { name: "description", content: "Daily and progress reports." }] }),
   component: ReportsPage,
 });

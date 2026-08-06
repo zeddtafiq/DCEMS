@@ -7,7 +7,7 @@ import { CrudTable } from "@/components/CrudTable";
 import { useCrudStore } from "@/lib/crud-store";
 import { KEYS, testingSeed } from "@/lib/dcems-data";
 
-export const Route = createFileRoute("/testing")({
+export const Route = createFileRoute("/_authenticated/testing")({
   head: () => ({ meta: [{ title: "Testing — DCEMS" }, { name: "description", content: "Electrical testing records." }] }),
   component: TestingPage,
 });

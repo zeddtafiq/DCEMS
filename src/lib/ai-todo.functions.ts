@@ -9,8 +9,8 @@ type Ctx = {
 export const suggestDailyTodos = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => data as Ctx)
   .handler(async ({ data }) => {
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("Missing LOVABLE_API_KEY");
+    const key = process.env.OPENAI_API_KEY;
+    if (!key) throw new Error("Missing OPENAI_API_KEY");
 
     const summary = {
       faultyOrTesting: data.equipment
@@ -34,14 +34,14 @@ Return ONLY JSON, no prose.
 Site status:
 ${JSON.stringify(summary, null, 2)}`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Lovable-API-Key": key,
+        Authorization: `Bearer ${key}`,
       },
       body: JSON.stringify({
-        model: "google/gemini-3.6-flash",
+        model: "gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
       }),
@@ -50,7 +50,8 @@ ${JSON.stringify(summary, null, 2)}`;
     if (!res.ok) {
       const text = await res.text();
       if (res.status === 429) throw new Error("AI rate limit — try again shortly.");
-      if (res.status === 402) throw new Error("AI credits exhausted — add credits in workspace billing.");
+      if (res.status === 401) throw new Error("Invalid OpenAI API key.");
+      if (res.status === 429) throw new Error("OpenAI quota/rate limit reached.");
       throw new Error(`AI error ${res.status}: ${text.slice(0, 200)}`);
     }
 

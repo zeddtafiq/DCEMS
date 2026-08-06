@@ -6,7 +6,7 @@ import { CrudTable } from "@/components/CrudTable";
 import { useCrudStore } from "@/lib/crud-store";
 import { KEYS, commissioningSeed } from "@/lib/dcems-data";
 
-export const Route = createFileRoute("/commissioning")({
+export const Route = createFileRoute("/_authenticated/commissioning")({
   head: () => ({ meta: [{ title: "Commissioning — DCEMS" }, { name: "description", content: "Commissioning progress and handover." }] }),
   component: CommissioningPage,
 });
