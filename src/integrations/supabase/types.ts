@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      documents: {
+        Row: {
+          created_at: string
+          created_by: string
+          date: string
+          file_name: string | null
+          file_path: string | null
+          file_size: number | null
+          folder: string
+          id: string
+          name: string
+          tag: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          date?: string
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          folder?: string
+          id?: string
+          name: string
+          tag?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          date?: string
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          folder?: string
+          id?: string
+          name?: string
+          tag?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       drawings: {
         Row: {
           created_at: string
