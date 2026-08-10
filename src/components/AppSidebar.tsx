@@ -59,11 +59,15 @@ export function AppSidebar() {
   }, []);
 
   async function handleLogout() {
+    const { signOut } = await import("firebase/auth");
+    const { firebaseAuth } = await import("@/lib/firebase");
+    await signOut(firebaseAuth).catch(() => {});
     const { error } = await supabase.auth.signOut();
     if (error) return toast.error(error.message);
     toast.success("Signed out");
     navigate({ to: "/auth" });
   }
+
 
   return (
     <Sidebar collapsible="icon">

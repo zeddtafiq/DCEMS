@@ -3,9 +3,19 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Server } from "lucide-react";
 import { toast } from "sonner";
+import {
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  updateProfile,
+  type User,
+} from "firebase/auth";
+import { useServerFn } from "@tanstack/react-start";
 
+import { firebaseAuth, googleProvider } from "@/lib/firebase";
+import { exchangeFirebaseToken } from "@/lib/firebase-bridge.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,12 +24,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/auth")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "Sign in — DCEMS" },
-      { name: "description", content: "Sign in, register, or reset password for the DCEMS dashboard." },
+      { name: "description", content: "Sign in, register, or reset your password for the DCEMS dashboard." },
       { property: "og:title", content: "Sign in — DCEMS" },
-      { property: "og:description", content: "Sign in, register, or reset password for the DCEMS dashboard." },
+      { property: "og:description", content: "Sign in, register, or reset your password for the DCEMS dashboard." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AuthPage,
@@ -29,18 +42,45 @@ const emailSchema = z.string().trim().email({ message: "Invalid email" }).max(25
 const passwordSchema = z.string().min(6, { message: "Password must be at least 6 characters" }).max(72);
 const nameSchema = z.string().trim().min(1, { message: "Name is required" }).max(100);
 
+function firebaseMessage(err: unknown): string {
+  const code = (err as { code?: string })?.code ?? "";
+  switch (code) {
+    case "auth/invalid-credential":
+    case "auth/wrong-password":
+    case "auth/user-not-found":
+      return "Incorrect email or password";
+    case "auth/email-already-in-use":
+      return "That email is already registered";
+    case "auth/weak-password":
+      return "Password is too weak";
+    case "auth/popup-closed-by-user":
+      return "Google sign-in was cancelled";
+    case "auth/operation-not-allowed":
+      return "This sign-in method is not enabled in Firebase yet";
+    default:
+      return (err as { message?: string })?.message ?? "Something went wrong";
+  }
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const exchange = useServerFn(exchangeFirebaseToken);
 
-  // Redirect if already signed in
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate({ to: "/" });
     });
   }, [navigate]);
 
-  // Login
+  // Bridge the Firebase user into a backend session so data rules keep working.
+  async function completeSignIn(user: User) {
+    const idToken = await user.getIdToken();
+    const { tokenHash } = await exchange({ data: { idToken } });
+    const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: "email" });
+    if (error) throw new Error(error.message);
+  }
+
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   async function handleLogin(e: React.FormEvent) {
@@ -52,14 +92,18 @@ function AuthPage() {
       if (err instanceof z.ZodError) return toast.error(err.errors[0].message);
     }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPassword });
-    setLoading(false);
-    if (error) return toast.error(error.message);
-    toast.success("Signed in");
-    navigate({ to: "/" });
+    try {
+      const cred = await signInWithEmailAndPassword(firebaseAuth, loginEmail, loginPassword);
+      await completeSignIn(cred.user);
+      toast.success("Signed in");
+      navigate({ to: "/" });
+    } catch (err) {
+      toast.error(firebaseMessage(err));
+    } finally {
+      setLoading(false);
+    }
   }
 
-  // Register
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
@@ -73,20 +117,19 @@ function AuthPage() {
       if (err instanceof z.ZodError) return toast.error(err.errors[0].message);
     }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email: regEmail,
-      password: regPassword,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: { full_name: regName },
-      },
-    });
-    setLoading(false);
-    if (error) return toast.error(error.message);
-    toast.success("Account created. Check your email to confirm.");
+    try {
+      const cred = await createUserWithEmailAndPassword(firebaseAuth, regEmail, regPassword);
+      await updateProfile(cred.user, { displayName: regName });
+      await completeSignIn(cred.user);
+      toast.success("Account created");
+      navigate({ to: "/" });
+    } catch (err) {
+      toast.error(firebaseMessage(err));
+    } finally {
+      setLoading(false);
+    }
   }
 
-  // Forgot password
   const [forgotEmail, setForgotEmail] = useState("");
   async function handleForgot(e: React.FormEvent) {
     e.preventDefault();
@@ -96,24 +139,28 @@ function AuthPage() {
       if (err instanceof z.ZodError) return toast.error(err.errors[0].message);
     }
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    setLoading(false);
-    if (error) return toast.error(error.message);
-    toast.success("Password reset email sent");
+    try {
+      await sendPasswordResetEmail(firebaseAuth, forgotEmail);
+      toast.success("Password reset email sent");
+    } catch (err) {
+      toast.error(firebaseMessage(err));
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleGoogle() {
     setLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    setLoading(false);
-    if (result.error) return toast.error(result.error.message ?? "Google sign-in failed");
-    if (result.redirected) return;
-    toast.success("Signed in");
-    navigate({ to: "/" });
+    try {
+      const cred = await signInWithPopup(firebaseAuth, googleProvider);
+      await completeSignIn(cred.user);
+      toast.success("Signed in");
+      navigate({ to: "/" });
+    } catch (err) {
+      toast.error(firebaseMessage(err));
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -129,11 +176,9 @@ function AuthPage() {
           <span className="text-2xl font-bold gradient-text">DCEMS</span>
         </Link>
 
-
         <Card>
           <CardHeader>
             <CardTitle>Welcome</CardTitle>
-            <CardDescription>Sign in, create an account, or reset your password.</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="login" className="w-full">
@@ -198,7 +243,7 @@ function AuthPage() {
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Sending…" : "Send reset link"}
                   </Button>
-                  <p className="text-xs text-muted-foreground">We'll email you a link to reset your password.</p>
+                  <p className="text-xs text-muted-foreground">Firebase will email you a link to set a new password.</p>
                 </form>
               </TabsContent>
             </Tabs>

@@ -49,10 +49,15 @@ ${JSON.stringify(summary, null, 2)}`;
 
     if (!res.ok) {
       const text = await res.text();
-      if (res.status === 429) throw new Error("AI rate limit — try again shortly.");
-      if (res.status === 401) throw new Error("Invalid OpenAI API key.");
-      if (res.status === 429) throw new Error("OpenAI quota/rate limit reached.");
-      throw new Error(`AI error ${res.status}: ${text.slice(0, 200)}`);
+      if (res.status === 401) throw new Error("Invalid ChatGPT (OpenAI) API key.");
+      if (res.status === 429) {
+        throw new Error(
+          text.includes("insufficient_quota") || text.includes("credit_balance")
+            ? "Your ChatGPT (OpenAI) account has no credits left. Add credits in the OpenAI billing settings to use the assistant."
+            : "ChatGPT rate limit reached — try again shortly.",
+        );
+      }
+      throw new Error(`ChatGPT error ${res.status}: ${text.slice(0, 200)}`);
     }
 
     const json = await res.json();
