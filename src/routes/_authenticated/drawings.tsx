@@ -3,7 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Download, Eye, FileText, GitBranch, Loader2, Pencil, Plus, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { supabase } from "@/integrations/supabase/client";
+import { createRow, deleteRow, downloadFile, listRows, onUidChange, removeFile, updateRow, uploadFile } from "@/lib/cloud-db";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -92,18 +93,18 @@ function DrawingsPage() {
   const fileInput = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
-    const { data, error } = await supabase
-      .from("drawings")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) toast.error(error.message);
-    setRows((data ?? []) as Drawing[]);
+    try {
+      setRows(await listRows<Drawing>("drawings"));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not load drawings");
+    }
     setLoading(false);
   }, []);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+    const unsub = onUidChange(setUserId);
     void load();
+    return unsub;
   }, [load]);
 
   const filtered = useMemo(() => {
@@ -149,28 +150,28 @@ function DrawingsPage() {
       toast.error("Drawing number and title are required.");
       return;
     }
-    if (!userId) {
-      toast.error("Please sign in to modify drawings.");
-      return;
-    }
+    const owner = userId ?? "public";
     setSaving(true);
     try {
       let filePatch: Partial<Drawing> = {};
       if (file) {
-        const path = `${userId}/${Date.now()}-${file.name.replace(/[^\w.\-]+/g, "_")}`;
-        const { error: upErr } = await supabase.storage.from("drawings").upload(path, file, { upsert: false });
-        if (upErr) throw upErr;
-        if (editing?.file_path) await supabase.storage.from("drawings").remove([editing.file_path]);
+        const path = await uploadFile("drawings", owner, file);
+        if (editing?.file_path) await removeFile(editing.file_path);
         filePatch = { file_path: path, file_name: file.name, file_size: file.size };
       }
 
       if (editing) {
-        const { error } = await supabase.from("drawings").update({ ...form, ...filePatch }).eq("id", editing.id);
-        if (error) throw error;
+        await updateRow("drawings", editing.id, { ...form, ...filePatch });
         toast.success("Drawing updated");
       } else {
-        const { error } = await supabase.from("drawings").insert({ ...form, ...filePatch, created_by: userId });
-        if (error) throw error;
+        await createRow("drawings", {
+          ...form,
+          file_path: null,
+          file_name: null,
+          file_size: null,
+          ...filePatch,
+          created_by: userId ?? null,
+        });
         toast.success("Drawing added");
       }
       setDialogOpen(false);
@@ -185,28 +186,26 @@ function DrawingsPage() {
   async function download(row: Drawing) {
     if (!row.file_path) return;
     setBusyId(row.id);
-    const { data, error } = await supabase.storage.from("drawings").download(row.file_path);
-    setBusyId(null);
-    if (error || !data) {
-      toast.error(error?.message ?? "Download failed");
-      return;
+    try {
+      await downloadFile(row.file_path, row.file_name ?? "drawing");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Download failed");
+    } finally {
+      setBusyId(null);
     }
-    const url = URL.createObjectURL(data);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = row.file_name ?? "drawing";
-    a.click();
-    URL.revokeObjectURL(url);
   }
 
   async function confirmDelete() {
     if (!deleting) return;
     const row = deleting;
     setDeleting(null);
-    if (row.file_path) await supabase.storage.from("drawings").remove([row.file_path]);
-    const { error } = await supabase.from("drawings").delete().eq("id", row.id);
-    if (error) toast.error(error.message);
-    else toast.success("Drawing deleted");
+    try {
+      if (row.file_path) await removeFile(row.file_path);
+      await deleteRow("drawings", row.id);
+      toast.success("Drawing deleted");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Delete failed");
+    }
     await load();
   }
 

@@ -1,5 +1,4 @@
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Home,
   FolderKanban,
@@ -12,17 +11,14 @@ import {
   LineChart,
   Folder,
   Server,
-  LogOut,
-  LogIn,
+  Cable,
+
 } from "lucide-react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -36,7 +32,9 @@ const items = [
   { title: "Projects", url: "/projects", icon: FolderKanban },
   { title: "Equipment", url: "/equipment", icon: Zap },
   { title: "Materials", url: "/materials", icon: Package },
+  { title: "Cable Pulling", url: "/cable-pulling", icon: Cable },
   { title: "Drawings", url: "/drawings", icon: FileText },
+
   { title: "Inspection", url: "/inspection", icon: ListChecks },
   { title: "Testing", url: "/testing", icon: FlaskConical },
   { title: "Commissioning", url: "/commissioning", icon: CheckCircle2 },
@@ -47,27 +45,6 @@ const items = [
 export function AppSidebar() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
-  const navigate = useNavigate();
-  const [email, setEmail] = useState<string | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setEmail(data.session?.user.email ?? null));
-    const { data: sub } = supabase.auth.onAuthStateChange((_evt, session) => {
-      setEmail(session?.user.email ?? null);
-    });
-    return () => sub.subscription.unsubscribe();
-  }, []);
-
-  async function handleLogout() {
-    const { signOut } = await import("firebase/auth");
-    const { firebaseAuth } = await import("@/lib/firebase");
-    await signOut(firebaseAuth).catch(() => {});
-    const { error } = await supabase.auth.signOut();
-    if (error) return toast.error(error.message);
-    toast.success("Signed out");
-    navigate({ to: "/auth" });
-  }
-
 
   return (
     <Sidebar collapsible="icon">
@@ -101,30 +78,6 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
-        {email && (
-          <div className="truncate px-3 py-1 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
-            {email}
-          </div>
-        )}
-        <SidebarMenu>
-          <SidebarMenuItem>
-            {email ? (
-              <SidebarMenuButton onClick={handleLogout} tooltip="Logout">
-                <LogOut />
-                <span>Logout</span>
-              </SidebarMenuButton>
-            ) : (
-              <SidebarMenuButton asChild tooltip="Sign in">
-                <Link to="/auth">
-                  <LogIn />
-                  <span>Sign in</span>
-                </Link>
-              </SidebarMenuButton>
-            )}
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
     </Sidebar>
   );
 }

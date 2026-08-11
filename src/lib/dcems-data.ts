@@ -11,7 +11,19 @@ export const KEYS = {
   commissioning: "dcems.commissioning",
   reports: "dcems.reports",
   documents: "dcems.documents",
+  cablePulling: "dcems.cablePulling",
 } as const;
+
+export const cablePullingSeed = [
+  { cableId: "PWR-001", drumNo: "DRM-1024", cableType: "XLPE/SWA/PVC 11kV", size: "1C x 500mm²", from: "MV Panel-01", to: "TR-01", route: "Trench", drumLength: 500, pulled: 420, crew: "Crew A", date: "2026-07-02", status: "Pulled" },
+  { cableId: "PWR-002", drumNo: "DRM-1025", cableType: "XLPE/SWA/PVC 11kV", size: "1C x 500mm²", from: "MV Panel-01", to: "TR-02", route: "Trench", drumLength: 500, pulled: 380, crew: "Crew A", date: "2026-07-03", status: "Terminated" },
+  { cableId: "PWR-011", drumNo: "DRM-2210", cableType: "LV XLPE 0.6/1kV", size: "4C x 240mm²", from: "TR-01 LV", to: "LV-P1", route: "Cable Tray", drumLength: 1000, pulled: 640, crew: "Crew B", date: "2026-07-05", status: "In Progress" },
+  { cableId: "PWR-012", drumNo: "DRM-2211", cableType: "LV XLPE 0.6/1kV", size: "4C x 120mm²", from: "LV-P1", to: "DB-L1", route: "Ladder", drumLength: 750, pulled: 300, crew: "Crew B", date: "2026-07-06", status: "In Progress" },
+  { cableId: "PWR-021", drumNo: "DRM-3301", cableType: "LV XLPE 0.6/1kV", size: "3C x 70mm²", from: "LV-P1", to: "UPS-A", route: "Cable Tray", drumLength: 500, pulled: 0, crew: "Crew C", date: "2026-07-08", status: "Planned" },
+  { cableId: "PWR-031", drumNo: "DRM-3302", cableType: "LV XLPE 0.6/1kV", size: "4C x 25mm²", from: "DB-L1", to: "Lighting Panel L1", route: "Conduit", drumLength: 300, pulled: 240, crew: "Crew C", date: "2026-07-04", status: "Pulled" },
+  { cableId: "ELV-101", drumNo: "DRM-4410", cableType: "FR Fire Alarm Cable", size: "2C x 2.5mm²", from: "FACP", to: "Zone Loop 1", route: "Conduit", drumLength: 600, pulled: 450, crew: "ELV Crew", date: "2026-07-07", status: "In Progress" },
+];
+
 
 export const projectsSeed = [
   { name: "Riyadh Data Center Phase 2", client: "STC", manager: "Ahmed Al-Farsi", team: 24, due: "2026-11-30", progress: 78, status: "On Track" },

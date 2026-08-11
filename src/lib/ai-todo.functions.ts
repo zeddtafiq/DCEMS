@@ -9,61 +9,56 @@ type Ctx = {
 export const suggestDailyTodos = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => data as Ctx)
   .handler(async ({ data }) => {
-    const key = process.env.OPENAI_API_KEY;
-    if (!key) throw new Error("Missing OPENAI_API_KEY");
+    const { callGpt } = await import("./ai-gpt.server");
 
     const summary = {
-      faultyOrTesting: data.equipment
+      faultyOrTesting: (data.equipment ?? [])
         .filter((e) => ["Faulty", "Testing", "Installed"].includes(String(e.status)))
         .slice(0, 15),
-      openInspections: data.inspections
+      openInspections: (data.inspections ?? [])
         .filter((i) => ["Failed", "Pending"].includes(String(i.result)))
         .slice(0, 15),
-      lowCommissioning: [...data.commissioning]
+      lowCommissioning: [...(data.commissioning ?? [])]
         .sort((a, b) => Number(a.pct ?? 0) - Number(b.pct ?? 0))
         .slice(0, 6),
     };
 
     const prompt = `You are a senior electrical commissioning site engineer.
-Given the current site status (JSON below), decide the 5–7 highest-priority tasks the site team should do TODAY.
+Given the current site status (JSON below), decide the 5-7 highest-priority tasks the site team should do TODAY.
 Prioritize safety issues, failed inspections, faulty equipment, and low-progress commissioning systems.
-
-Respond as a strict JSON object: { "todos": [{ "task": string, "why": string, "priority": "High"|"Medium"|"Low" }] }
-Return ONLY JSON, no prose.
 
 Site status:
 ${JSON.stringify(summary, null, 2)}`;
 
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${key}`,
+    const text = await callGpt({
+      input: [{ role: "user", content: [{ type: "input_text", text: prompt }] }],
+      jsonSchema: {
+        name: "daily_todos",
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            todos: {
+              type: "array",
+              items: {
+                type: "object",
+                additionalProperties: false,
+                properties: {
+                  task: { type: "string" },
+                  why: { type: "string" },
+                  priority: { type: "string", enum: ["High", "Medium", "Low"] },
+                },
+                required: ["task", "why", "priority"],
+              },
+            },
+          },
+          required: ["todos"],
+        },
       },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
-        response_format: { type: "json_object" },
-      }),
     });
 
-    if (!res.ok) {
-      const text = await res.text();
-      if (res.status === 401) throw new Error("Invalid ChatGPT (OpenAI) API key.");
-      if (res.status === 429) {
-        throw new Error(
-          text.includes("insufficient_quota") || text.includes("credit_balance")
-            ? "Your ChatGPT (OpenAI) account has no credits left. Add credits in the OpenAI billing settings to use the assistant."
-            : "ChatGPT rate limit reached — try again shortly.",
-        );
-      }
-      throw new Error(`ChatGPT error ${res.status}: ${text.slice(0, 200)}`);
-    }
-
-    const json = await res.json();
-    const content = json?.choices?.[0]?.message?.content ?? "{}";
     try {
-      const parsed = JSON.parse(content);
+      const parsed = JSON.parse(text || "{}");
       const todos = Array.isArray(parsed.todos) ? parsed.todos : [];
       return { todos } as { todos: Array<{ task: string; why: string; priority: string }> };
     } catch {

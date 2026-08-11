@@ -14,7 +14,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { supabase } from "@/integrations/supabase/client";
+import { createRow, deleteRow, downloadFile, listRows, onUidChange, removeFile, updateRow, uploadFile } from "@/lib/cloud-db";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -110,15 +111,18 @@ function DocumentsPage() {
   const fileInput = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
-    const { data, error } = await supabase.from("documents").select("*").order("created_at", { ascending: false });
-    if (error) toast.error(error.message);
-    setRows((data ?? []) as Doc[]);
+    try {
+      setRows(await listRows<Doc>("documents"));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not load documents");
+    }
     setLoading(false);
   }, []);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+    const unsub = onUidChange(setUserId);
     void load();
+    return unsub;
   }, [load]);
 
   const filtered = useMemo(() => {
@@ -153,10 +157,7 @@ function DocumentsPage() {
   }
 
   async function save() {
-    if (!userId) {
-      toast.error("Please sign in to modify documents.");
-      return;
-    }
+    const owner = userId ?? "public";
     if (!form.name.trim() && !file) {
       toast.error("Give the document a name or choose a file.");
       return;
@@ -165,10 +166,8 @@ function DocumentsPage() {
     try {
       let filePatch: Partial<Doc> = {};
       if (file) {
-        const path = `${userId}/${Date.now()}-${file.name.replace(/[^\w.\-]+/g, "_")}`;
-        const { error: upErr } = await supabase.storage.from("documents").upload(path, file, { upsert: false });
-        if (upErr) throw upErr;
-        if (editing?.file_path) await supabase.storage.from("documents").remove([editing.file_path]);
+        const path = await uploadFile("documents", owner, file);
+        if (editing?.file_path) await removeFile(editing.file_path);
         filePatch = { file_path: path, file_name: file.name, file_size: file.size };
       }
 
@@ -180,12 +179,16 @@ function DocumentsPage() {
       };
 
       if (editing) {
-        const { error } = await supabase.from("documents").update(payload).eq("id", editing.id);
-        if (error) throw error;
+        await updateRow("documents", editing.id, payload);
         toast.success("Document updated");
       } else {
-        const { error } = await supabase.from("documents").insert({ ...payload, created_by: userId });
-        if (error) throw error;
+        await createRow("documents", {
+          file_path: null,
+          file_name: null,
+          file_size: null,
+          ...payload,
+          created_by: userId ?? null,
+        });
         toast.success("Document uploaded");
       }
       setDialogOpen(false);
@@ -200,28 +203,26 @@ function DocumentsPage() {
   async function download(row: Doc) {
     if (!row.file_path) return;
     setBusyId(row.id);
-    const { data, error } = await supabase.storage.from("documents").download(row.file_path);
-    setBusyId(null);
-    if (error || !data) {
-      toast.error(error?.message ?? "Download failed");
-      return;
+    try {
+      await downloadFile(row.file_path, row.file_name ?? row.name);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Download failed");
+    } finally {
+      setBusyId(null);
     }
-    const url = URL.createObjectURL(data);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = row.file_name ?? row.name;
-    a.click();
-    URL.revokeObjectURL(url);
   }
 
   async function confirmDelete() {
     if (!deleting) return;
     const row = deleting;
     setDeleting(null);
-    if (row.file_path) await supabase.storage.from("documents").remove([row.file_path]);
-    const { error } = await supabase.from("documents").delete().eq("id", row.id);
-    if (error) toast.error(error.message);
-    else toast.success("Document deleted");
+    try {
+      if (row.file_path) await removeFile(row.file_path);
+      await deleteRow("documents", row.id);
+      toast.success("Document deleted");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Delete failed");
+    }
     await load();
   }
 

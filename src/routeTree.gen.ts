@@ -10,9 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedCablePullingRouteImport } from './routes/_authenticated/cable-pulling'
 import { Route as AuthenticatedCommissioningRouteImport } from './routes/_authenticated/commissioning'
 import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
 import { Route as AuthenticatedDrawingsRouteImport } from './routes/_authenticated/drawings'
@@ -27,21 +26,17 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCablePullingRoute =
+  AuthenticatedCablePullingRouteImport.update({
+    id: '/cable-pulling',
+    path: '/cable-pulling',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCommissioningRoute =
   AuthenticatedCommissioningRouteImport.update({
     id: '/commissioning',
@@ -91,8 +86,7 @@ const AuthenticatedTestingRoute = AuthenticatedTestingRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
-  '/auth': typeof AuthRoute
-  '/reset-password': typeof ResetPasswordRoute
+  '/cable-pulling': typeof AuthenticatedCablePullingRoute
   '/commissioning': typeof AuthenticatedCommissioningRoute
   '/documents': typeof AuthenticatedDocumentsRoute
   '/drawings': typeof AuthenticatedDrawingsRoute
@@ -104,8 +98,7 @@ export interface FileRoutesByFullPath {
   '/testing': typeof AuthenticatedTestingRoute
 }
 export interface FileRoutesByTo {
-  '/auth': typeof AuthRoute
-  '/reset-password': typeof ResetPasswordRoute
+  '/cable-pulling': typeof AuthenticatedCablePullingRoute
   '/commissioning': typeof AuthenticatedCommissioningRoute
   '/documents': typeof AuthenticatedDocumentsRoute
   '/drawings': typeof AuthenticatedDrawingsRoute
@@ -120,8 +113,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/auth': typeof AuthRoute
-  '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/cable-pulling': typeof AuthenticatedCablePullingRoute
   '/_authenticated/commissioning': typeof AuthenticatedCommissioningRoute
   '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
   '/_authenticated/drawings': typeof AuthenticatedDrawingsRoute
@@ -137,8 +129,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/auth'
-    | '/reset-password'
+    | '/cable-pulling'
     | '/commissioning'
     | '/documents'
     | '/drawings'
@@ -150,8 +141,7 @@ export interface FileRouteTypes {
     | '/testing'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/auth'
-    | '/reset-password'
+    | '/cable-pulling'
     | '/commissioning'
     | '/documents'
     | '/drawings'
@@ -165,8 +155,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_authenticated'
-    | '/auth'
-    | '/reset-password'
+    | '/_authenticated/cable-pulling'
     | '/_authenticated/commissioning'
     | '/_authenticated/documents'
     | '/_authenticated/drawings'
@@ -181,8 +170,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AuthRoute: typeof AuthRoute
-  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -194,25 +181,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/': {
       id: '/_authenticated/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/cable-pulling': {
+      id: '/_authenticated/cable-pulling'
+      path: '/cable-pulling'
+      fullPath: '/cable-pulling'
+      preLoaderRoute: typeof AuthenticatedCablePullingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/commissioning': {
@@ -282,6 +262,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCablePullingRoute: typeof AuthenticatedCablePullingRoute
   AuthenticatedCommissioningRoute: typeof AuthenticatedCommissioningRoute
   AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
   AuthenticatedDrawingsRoute: typeof AuthenticatedDrawingsRoute
@@ -295,6 +276,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCablePullingRoute: AuthenticatedCablePullingRoute,
   AuthenticatedCommissioningRoute: AuthenticatedCommissioningRoute,
   AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
   AuthenticatedDrawingsRoute: AuthenticatedDrawingsRoute,
@@ -312,8 +294,6 @@ const AuthenticatedRouteRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AuthRoute: AuthRoute,
-  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

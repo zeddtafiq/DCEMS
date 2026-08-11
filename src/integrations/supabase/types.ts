@@ -17,7 +17,7 @@ export type Database = {
       documents: {
         Row: {
           created_at: string
-          created_by: string
+          created_by: string | null
           date: string
           file_name: string | null
           file_path: string | null
@@ -31,7 +31,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          created_by: string
+          created_by?: string | null
           date?: string
           file_name?: string | null
           file_path?: string | null
@@ -45,7 +45,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           date?: string
           file_name?: string | null
           file_path?: string | null
@@ -62,7 +62,7 @@ export type Database = {
       drawings: {
         Row: {
           created_at: string
-          created_by: string
+          created_by: string | null
           date: string
           discipline: string
           file_name: string | null
@@ -77,7 +77,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          created_by: string
+          created_by?: string | null
           date?: string
           discipline?: string
           file_name?: string | null
@@ -92,7 +92,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           date?: string
           discipline?: string
           file_name?: string | null
